@@ -1,0 +1,423 @@
+// ÉLANE Haute Beauté & Grooming Atelier (Malta)
+// Production Database Schema for PostgreSQL & Prisma ORM
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CLIENT
+  STAFF
+  ADMIN
+  SUPERADMIN
+}
+
+enum GenderCategory {
+  WOMEN
+  MEN
+  KIDS
+  UNISEX
+}
+
+enum BookingLocationType {
+  SALON
+  HOME_SERVICE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  RESCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum EventStatus {
+  PENDING
+  UNDER_REVIEW
+  QUOTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESSFUL
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String
+  email         String          @unique
+  emailVerified DateTime?
+  phone         String?
+  image         String?
+  passwordHash  String?
+  role          Role            @default(CLIENT)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  customerProfile CustomerProfile?
+  staff           Staff?
+  bookings        Booking[]
+  reviews         Review[]
+  orders          Order[]
+  cart            Cart?
+  notifications   Notification[]
+}
+
+model CustomerProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hairType         String?
+  hairPorosity     String?
+  skinType         String?
+  allergies        String?
+  preferredStylist String?
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Staff {
+  id                String              @id @default(cuid())
+  userId            String              @unique
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleTitle         String
+  bio               String
+  avatar            String
+  yearsOfExperience Int
+  rating            Float               @default(5.0)
+  reviewCount       Int                 @default(0)
+  specialties       String[]
+  instagram         String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  availabilities    StaffAvailability[]
+  bookings          Booking[]
+  assignedEvents    EventRequest[]
+}
+
+model StaffAvailability {
+  id         String   @id @default(cuid())
+  staffId    String
+  staff      Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  dayOfWeek  Int      // 0 = Sunday, 1 = Monday ... 6 = Saturday
+  startTime  String   // e.g. "09:00"
+  endTime    String   // e.g. "19:00"
+  isWorking  Boolean  @default(true)
+  breakStart String?
+  breakEnd   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([staffId, dayOfWeek])
+}
+
+model SalonLocation {
+  id           String    @id @default(cuid())
+  name         String
+  streetAddress String
+  locality     String    // e.g. "Sliema"
+  postalCode   String
+  country      String    @default("Malta")
+  phone        String
+  email        String
+  latitude     Float
+  longitude    Float
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  bookings     Booking[]
+}
+
+model ServiceCategory {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  description String?
+  image       String?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  services    Service[]
+}
+
+model Service {
+  id               String          @id @default(cuid())
+  slug             String          @unique
+  title            String
+  categoryId       String
+  category         ServiceCategory @relation(fields: [categoryId], references: [id])
+  genderCategory   GenderCategory  @default(WOMEN)
+  shortDesc        String
+  fullDesc         String
+  whoItsFor        String[]
+  includedSteps    String[]
+  preparation      String[]
+  aftercare        String[]
+  durationMin      Int
+  adultPriceMin    Float
+  adultPriceMax    Float
+  childPriceMin    Float?
+  childPriceMax    Float?
+  serviceAssurance String
+  heroImage        String
+  gallery          String[]
+  featured         Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  bookings         Booking[]
+  reviews          Review[]
+  prices           ServicePrice[]
+  faqs             FAQ[]
+}
+
+model ServicePrice {
+  id          String   @id @default(cuid())
+  serviceId   String
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  tierName    String   // e.g. "Adult Long Hair", "Junior", "Senior Stylist"
+  price       Float
+  durationMin Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Booking {
+  id            String              @id @default(cuid())
+  bookingNumber String              @unique // e.g. "ELN-2026-10428"
+  customerId    String
+  customer      User                @relation(fields: [customerId], references: [id])
+  serviceId     String
+  service       Service             @relation(fields: [serviceId], references: [id])
+  staffId       String
+  staff         Staff               @relation(fields: [staffId], references: [id])
+  locationId    String?
+  location      SalonLocation?      @relation(fields: [locationId], references: [id])
+  locationType  BookingLocationType @default(SALON)
+  date          DateTime
+  startTime     String
+  endTime       String
+  durationMin   Int
+  status        BookingStatus       @default(CONFIRMED)
+  totalPrice    Float
+  notes         String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  homeService   HomeServiceBooking?
+  payment       Payment?
+  review        Review?
+
+  @@index([customerId, date])
+  @@index([staffId, date])
+}
+
+model HomeServiceBooking {
+  id              String   @id @default(cuid())
+  bookingId       String   @unique
+  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  streetAddress   String
+  areaZone        String   // e.g. "Sliema / St. Julian's (Zone 1)"
+  travelFee       Float    @default(20.0)
+  parkingNotes    String?
+  accessCode      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model EventRequest {
+  id             String      @id @default(cuid())
+  name           String
+  email          String
+  phone          String
+  eventType      String
+  date           DateTime
+  venueLocation  String
+  numberOfPeople Int
+  budgetRange    String
+  servicesNeeded String[]
+  message        String
+  status         EventStatus @default(PENDING)
+  assignedStaffId String?
+  assignedStaff  Staff?      @relation(fields: [assignedStaffId], references: [id])
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  bookingId    String?  @unique
+  booking      Booking? @relation(fields: [bookingId], references: [id])
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  serviceId    String
+  service      Service  @relation(fields: [serviceId], references: [id])
+  rating       Int      // 1-5
+  serviceScore Int?     // 1-5
+  staffScore   Int?     // 1-5
+  ambianceScore Int?    // 1-5
+  text         String
+  verified     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([serviceId, rating])
+}
+
+model ProductCategory {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  products  Product[]
+}
+
+model Product {
+  id           String          @id @default(cuid())
+  slug         String          @unique
+  name         String
+  brand        String
+  categoryId   String
+  category     ProductCategory @relation(fields: [categoryId], references: [id])
+  price        Float
+  rating       Float           @default(5.0)
+  reviewsCount Int             @default(0)
+  image        String
+  shortDesc    String
+  description  String
+  ingredients  String[]
+  usage        String[]
+  inStock      Boolean         @default(true)
+  volume       String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  orderItems   OrderItem[]
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  items     CartItem[]
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  itemType  String   // "SERVICE" or "PRODUCT"
+  itemId    String
+  quantity  Int      @default(1)
+  options   Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  totalAmount Float
+  status      OrderStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  items       OrderItem[]
+  payment     Payment?
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+  unitPrice Float
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  bookingId     String?       @unique
+  booking       Booking?      @relation(fields: [bookingId], references: [id])
+  orderId       String?       @unique
+  order         Order?        @relation(fields: [orderId], references: [id])
+  amount        Float
+  currency      String        @default("EUR")
+  paymentMethod String        // e.g. "CARD", "APPLE_PAY", "IN_SALON"
+  status        PaymentStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   // "BOOKING_CONFIRMED", "REMINDER", "STATUS_CHANGE"
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  discountPct Int
+  active      Boolean   @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id])
+  question  String
+  answer    String
+  category  String?
+  createdAt DateTime @default(now())
+}
+
+model GalleryItem {
+  id        String   @id @default(cuid())
+  title     String
+  imageUrl  String
+  stylist   String?
+  category  String
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
