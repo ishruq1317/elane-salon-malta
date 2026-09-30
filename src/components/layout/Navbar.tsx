@@ -139,13 +139,19 @@ export function Navbar() {
                 )}
               </Link>
 
-              {/* Primary Book CTA */}
+              {/* Admin Panel Button (beside User button, requires admin credentials) */}
               <Link
-                href="/booking"
-                className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-charcoal text-ivory text-xs font-semibold uppercase tracking-widest hover:bg-charcoal-light hover:text-gold transition-all duration-300 shadow-sm rounded-none border border-charcoal btn-luxury"
+                href="/admin"
+                aria-label="Admin Operations Panel"
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all border ${
+                  user?.role === "ADMIN"
+                    ? "bg-charcoal text-gold border-charcoal shadow-xs"
+                    : "bg-ivory/80 text-charcoal/80 border-sand hover:border-gold hover:text-charcoal hover:bg-sand/30"
+                }`}
+                title="Salon Management Portal (Requires Admin Credentials)"
               >
-                <Calendar className="w-3.5 h-3.5 text-gold" />
-                <span>Book Appointment</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-gold" />
+                <span>Admin</span>
               </Link>
 
               {/* Mobile Hamburger Button */}

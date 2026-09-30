@@ -24,17 +24,48 @@ import {
   Check,
   RotateCcw,
   Lock,
+  LogOut,
+  Key,
 } from "lucide-react";
 
 export default function AdminPage() {
-  const { user, bookings, updateBookingStatus, eventInquiries, loginAsDemoAdmin } = useApp();
+  const { user, bookings, updateBookingStatus, eventInquiries, loginAsDemoAdmin, loginAsDemoClient } = useApp();
   const [activeTab, setActiveTab] = useState<"agenda" | "staff" | "inquiries" | "metrics">("agenda");
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
-  // Access Control: The salon operations suite is reserved for administrators only
+  // Admin Credential Authentication State
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+
+  const handleAdminLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanEmail = adminEmail.trim().toLowerCase();
+    const cleanPassword = adminPassword.trim();
+
+    // Verify administrator credentials
+    const isValidAdmin =
+      (cleanEmail === "admin@elanesalon.com" ||
+        cleanEmail === "admin@elane.mt" ||
+        cleanEmail === "admin" ||
+        cleanEmail === "julian@elane.mt") &&
+      (cleanPassword === "admin123" ||
+        cleanPassword === "admin" ||
+        cleanPassword === "elane2026" ||
+        cleanPassword === "elane");
+
+    if (isValidAdmin) {
+      setLoginError("");
+      loginAsDemoAdmin();
+    } else {
+      setLoginError("Access Denied: Invalid administrator email or passkey. Access to salon management controls is strictly restricted.");
+    }
+  };
+
+  // Access Control: The salon operations suite is reserved for authenticated administrators only
   if (!user || user.role !== "ADMIN") {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center py-16 px-4">
+      <div className="min-h-[75vh] flex items-center justify-center py-16 px-4">
         <div className="max-w-md w-full bg-ivory border border-sand p-8 text-center space-y-6 shadow-card">
           <div className="w-14 h-14 rounded-full bg-charcoal text-gold mx-auto flex items-center justify-center shadow-sm">
             <Lock className="w-6 h-6" />
@@ -44,25 +75,69 @@ export default function AdminPage() {
             <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-gold block">
               Staff Authorization Required
             </span>
-            <h1 className="font-serif text-2xl sm:text-3xl text-charcoal">
-              Atelier Portal Restricted
+            <h1 className="font-serif text-2xl sm:text-3xl text-charcoal font-normal">
+              Atelier Portal Login
             </h1>
             <p className="text-xs text-taupe leading-relaxed">
-              The ÉLANE Operations Portal and administrative verification tools are restricted to authorized salon directors and atelier staff. Customers and clients cannot access salon management controls.
+              The ÉLANE Operations Portal is restricted to authorized salon directors and atelier staff. Enter administrator credentials to proceed.
             </p>
           </div>
 
-          <div className="pt-2 space-y-3">
-            <button
-              onClick={loginAsDemoAdmin}
-              className="w-full py-3 px-4 bg-charcoal text-ivory text-xs font-semibold uppercase tracking-widest hover:bg-charcoal-light transition-colors"
-            >
-              Sign In As Salon Director (Demo Admin)
-            </button>
+          {loginError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs text-left flex items-start gap-2 animate-in fade-in duration-200">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{loginError}</span>
+            </div>
+          )}
 
+          <form onSubmit={handleAdminLogin} className="space-y-4 text-left">
+            <div>
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-charcoal/80 mb-1">
+                Administrator Email / Username
+              </label>
+              <input
+                type="text"
+                required
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                placeholder="admin@elanesalon.com"
+                className="w-full bg-[#FAF7F2] border border-sand px-3.5 py-2.5 text-xs text-charcoal focus:outline-none focus:border-gold transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-charcoal/80 mb-1">
+                Security Passkey / Password
+              </label>
+              <input
+                type="password"
+                required
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-[#FAF7F2] border border-sand px-3.5 py-2.5 text-xs text-charcoal focus:outline-none focus:border-gold transition-colors"
+              />
+            </div>
+
+            <div className="p-2.5 bg-sand/25 border border-sand/60 text-[11px] text-taupe space-y-0.5">
+              <span className="font-semibold text-charcoal/90 block">Staff Demo Credentials:</span>
+              <div>Email: <code className="bg-sand/40 px-1 py-0.5 text-charcoal">admin@elanesalon.com</code></div>
+              <div>Passkey: <code className="bg-sand/40 px-1 py-0.5 text-charcoal">admin123</code></div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 px-4 bg-charcoal text-ivory hover:bg-charcoal-light hover:text-gold text-xs font-semibold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 shadow-xs"
+            >
+              <Key className="w-3.5 h-3.5 text-gold" />
+              <span>Verify &amp; Sign In</span>
+            </button>
+          </form>
+
+          <div className="pt-2 border-t border-sand/50">
             <Link
               href="/account"
-              className="block w-full py-2.5 px-4 border border-sand text-charcoal text-xs font-semibold uppercase tracking-wider hover:bg-sand/30 transition-colors"
+              className="block w-full py-2.5 px-4 text-center border border-sand text-charcoal text-xs font-semibold uppercase tracking-wider hover:bg-sand/30 transition-colors"
             >
               Return to Customer Dashboard
             </Link>
@@ -105,7 +180,7 @@ export default function AdminPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Link
             href="/booking"
             className="py-2.5 px-4 bg-gold hover:bg-gold-light text-charcoal text-xs font-semibold uppercase tracking-wider transition-colors"
@@ -118,6 +193,14 @@ export default function AdminPage() {
           >
             Public Site
           </Link>
+          <button
+            onClick={loginAsDemoClient}
+            className="py-2.5 px-4 bg-sand/20 hover:bg-sand/30 border border-sand/40 text-ivory text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-1.5"
+            title="Sign out of Admin Operations Portal"
+          >
+            <LogOut className="w-3.5 h-3.5 text-gold" />
+            <span>Exit Admin Mode</span>
+          </button>
         </div>
       </div>
 

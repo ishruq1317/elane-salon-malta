@@ -7,7 +7,6 @@ import { Footer } from "@/components/layout/Footer";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { SearchModal } from "@/components/search/SearchModal";
-import { DemoBadgeNotice } from "@/components/shared/DemoBadgeNotice";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -55,7 +54,6 @@ export default function RootLayout({
     <html lang="en" className={`${cormorant.variable} ${manrope.variable}`}>
       <body className="min-h-screen flex flex-col bg-[#FAF7F2] text-charcoal font-sans antialiased selection:bg-sand selection:text-charcoal pb-16 lg:pb-0">
         <AppProvider>
-          <DemoBadgeNotice />
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
