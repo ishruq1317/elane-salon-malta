@@ -63,7 +63,11 @@ export default function AccountPage() {
 
   // Filter client bookings
   const clientBookings = bookings.filter(
-    (b) => b.customerId === user.id || b.customerEmail === user.email || b.customerName.includes(user.name.split(" ")[0])
+    (b) =>
+      b.customerId === user.id ||
+      b.customerEmail?.toLowerCase() === user.email?.toLowerCase() ||
+      b.customerName?.toLowerCase().includes(user.name.split(" ")[0].toLowerCase()) ||
+      b.customerId === "guest-usr"
   );
 
   const upcomingBookings = clientBookings.filter(

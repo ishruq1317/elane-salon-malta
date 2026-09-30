@@ -44,12 +44,14 @@ export function DemoBadgeNotice() {
             </button>
           </div>
 
-          <Link
-            href="/admin"
-            className="hidden md:inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-charcoal-muted text-ivory hover:bg-gold/20 hover:text-gold transition-colors text-[11px]"
-          >
-            <Shield className="w-3 h-3" /> Admin SaaS
-          </Link>
+          {user?.role === "ADMIN" && (
+            <Link
+              href="/admin"
+              className="hidden md:inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-gold/20 text-gold border border-gold/40 hover:bg-gold hover:text-charcoal transition-colors text-[11px] font-semibold"
+            >
+              <Shield className="w-3 h-3" /> Admin SaaS
+            </Link>
+          )}
 
           <button
             onClick={() => setDismissed(true)}

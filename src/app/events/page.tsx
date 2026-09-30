@@ -174,12 +174,18 @@ export default function EventsPage() {
             <p className="text-xs text-taupe max-w-md mx-auto">
               Thank you, {formData.name}. Your request for {formData.eventType} has been logged in our demo management system.
             </p>
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
               <Link
-                href="/admin"
+                href="/account"
                 className="inline-block py-2.5 px-6 bg-charcoal text-ivory text-xs font-semibold uppercase tracking-wider hover:bg-charcoal-light transition-colors"
               >
-                Inspect Inquiry in Admin Portal
+                View in Customer Dashboard
+              </Link>
+              <Link
+                href="/"
+                className="inline-block py-2.5 px-6 border border-sand text-charcoal text-xs font-semibold uppercase tracking-wider hover:bg-sand/30 transition-colors"
+              >
+                Return to Atelier Home
               </Link>
             </div>
           </div>

@@ -831,7 +831,7 @@ export function BookingWizard() {
             </div>
           </div>
 
-          {/* Action CTAs */}
+          {/* Action CTAs: Separated by Role (Customer vs Staff Admin) */}
           <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/account"
@@ -840,13 +840,22 @@ export function BookingWizard() {
               View In Customer Dashboard
             </Link>
 
-            <Link
-              href="/admin"
-              className="py-3 px-6 bg-sand/60 hover:bg-sand text-charcoal text-xs font-semibold uppercase tracking-widest transition-colors flex items-center justify-center gap-1.5"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-olive" />
-              <span>Verify in Admin Portal</span>
-            </Link>
+            {user?.role === "ADMIN" ? (
+              <Link
+                href="/admin"
+                className="py-3 px-6 bg-sand/60 hover:bg-sand text-charcoal text-xs font-semibold uppercase tracking-widest transition-colors flex items-center justify-center gap-1.5"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-olive" />
+                <span>Verify in Admin Portal</span>
+              </Link>
+            ) : (
+              <Link
+                href="/"
+                className="py-3 px-6 border border-sand hover:bg-sand/30 text-charcoal text-xs font-semibold uppercase tracking-widest transition-colors"
+              >
+                Return to Atelier Home
+              </Link>
+            )}
           </div>
         </div>
       )}

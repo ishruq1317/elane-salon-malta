@@ -23,12 +23,54 @@ import {
   Scissors,
   Check,
   RotateCcw,
+  Lock,
 } from "lucide-react";
 
 export default function AdminPage() {
-  const { bookings, updateBookingStatus, eventInquiries } = useApp();
+  const { user, bookings, updateBookingStatus, eventInquiries, loginAsDemoAdmin } = useApp();
   const [activeTab, setActiveTab] = useState<"agenda" | "staff" | "inquiries" | "metrics">("agenda");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+
+  // Access Control: The salon operations suite is reserved for administrators only
+  if (!user || user.role !== "ADMIN") {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center py-16 px-4">
+        <div className="max-w-md w-full bg-ivory border border-sand p-8 text-center space-y-6 shadow-card">
+          <div className="w-14 h-14 rounded-full bg-charcoal text-gold mx-auto flex items-center justify-center shadow-sm">
+            <Lock className="w-6 h-6" />
+          </div>
+
+          <div className="space-y-2">
+            <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-gold block">
+              Staff Authorization Required
+            </span>
+            <h1 className="font-serif text-2xl sm:text-3xl text-charcoal">
+              Atelier Portal Restricted
+            </h1>
+            <p className="text-xs text-taupe leading-relaxed">
+              The ÉLANE Operations Portal and administrative verification tools are restricted to authorized salon directors and atelier staff. Customers and clients cannot access salon management controls.
+            </p>
+          </div>
+
+          <div className="pt-2 space-y-3">
+            <button
+              onClick={loginAsDemoAdmin}
+              className="w-full py-3 px-4 bg-charcoal text-ivory text-xs font-semibold uppercase tracking-widest hover:bg-charcoal-light transition-colors"
+            >
+              Sign In As Salon Director (Demo Admin)
+            </button>
+
+            <Link
+              href="/account"
+              className="block w-full py-2.5 px-4 border border-sand text-charcoal text-xs font-semibold uppercase tracking-wider hover:bg-sand/30 transition-colors"
+            >
+              Return to Customer Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const filteredBookings = bookings.filter((b) => {
     if (filterStatus === "all") return true;
