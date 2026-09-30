@@ -119,22 +119,14 @@ export function ServiceCard({ service, variant = "default" }: ServiceCardProps) 
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="pt-2 grid grid-cols-2 gap-2">
+        {/* Action Button: Concise and elegant */}
+        <div className="pt-2">
           <Link
             href={`/services/${service.slug}`}
-            className="py-2.5 px-3 text-center border border-charcoal/20 text-charcoal hover:border-charcoal hover:bg-sand/30 text-xs uppercase tracking-wider font-semibold transition-colors flex items-center justify-center gap-1"
+            className="w-full py-2.5 px-4 text-center border border-sand bg-ivory/80 text-charcoal hover:bg-charcoal hover:text-ivory text-xs uppercase tracking-wider font-semibold transition-all duration-300 flex items-center justify-center gap-2 group-hover:border-gold"
           >
-            <span>Details</span>
-            <ArrowRight className="w-3 h-3" />
-          </Link>
-
-          <Link
-            href={`/booking?service=${service.slug}`}
-            className="py-2.5 px-3 text-center bg-charcoal text-ivory hover:bg-charcoal-light hover:text-gold text-xs uppercase tracking-wider font-semibold transition-colors flex items-center justify-center gap-1.5 btn-luxury"
-          >
-            <Calendar className="w-3.5 h-3.5 text-gold" />
-            <span>Book</span>
+            <span>Explore Ritual &amp; Pricing</span>
+            <ArrowRight className="w-3.5 h-3.5 text-gold transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
       </div>

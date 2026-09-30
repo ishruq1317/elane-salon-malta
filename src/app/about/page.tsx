@@ -18,6 +18,7 @@ import {
 import { SALON_INFO } from "@/data/salonInfo";
 import { STYLISTS } from "@/data/stylists";
 import { StylistCard } from "@/components/shared/StylistCard";
+import { TeamShowcaseCarousel } from "@/components/team/TeamShowcaseCarousel";
 
 export default function AboutPage() {
   return (
@@ -153,9 +154,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* The Team Section */}
-      <section id="team" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div className="text-center max-w-2xl mx-auto space-y-3">
+      {/* The Team Section (Animated Continuous Loop from Left to Right, Profiles Only) */}
+      <section id="team" className="w-full overflow-hidden space-y-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-2xl mx-auto space-y-3">
           <span className="text-xs uppercase tracking-[0.2em] text-gold font-bold">
             Artisan Collective
           </span>
@@ -167,11 +168,8 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {STYLISTS.map((stylist) => (
-            <StylistCard key={stylist.id} stylist={stylist} />
-          ))}
-        </div>
+        {/* Animated Left-to-Right Team Showcase */}
+        <TeamShowcaseCarousel stylists={STYLISTS} />
       </section>
 
       {/* Atelier Location & Sliema Visit */}

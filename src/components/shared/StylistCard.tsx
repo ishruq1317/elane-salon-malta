@@ -14,13 +14,13 @@ export function StylistCard({ stylist }: StylistCardProps) {
 
   return (
     <>
-      <div className="group bg-ivory border border-sand hover:border-gold/60 transition-all duration-300 shadow-sm flex flex-col justify-between overflow-hidden">
-        {/* Stylist Portrait */}
+      <div className="group bg-ivory border border-sand hover:border-gold hover:ring-2 hover:ring-gold/30 transition-all duration-500 ease-out hover:-translate-y-4 hover:scale-[1.03] hover:shadow-2xl flex flex-col justify-between overflow-hidden cursor-pointer">
+        {/* Stylist Portrait with Pronounced Pop-Up Effect */}
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-sand/30">
           <img
             src={stylist.avatar}
             alt={stylist.name}
-            className="w-full h-full object-cover luxury-image-hover"
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
             loading="lazy"
           />
 
@@ -65,33 +65,25 @@ export function StylistCard({ stylist }: StylistCardProps) {
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="pt-2 grid grid-cols-2 gap-2">
+          {/* Action: Profile Only, No Booking */}
+          <div className="pt-2">
             <button
               onClick={() => setModalOpen(true)}
-              className="py-2 px-3 text-center border border-charcoal/20 text-charcoal hover:border-charcoal hover:bg-sand/30 text-xs uppercase tracking-wider font-semibold transition-colors"
+              className="w-full py-2.5 px-4 text-center border border-sand bg-ivory text-charcoal hover:bg-charcoal hover:text-ivory hover:border-charcoal text-xs uppercase tracking-wider font-semibold transition-all duration-300"
             >
-              Profile
+              View Artisan Profile
             </button>
-
-            <Link
-              href={`/booking?stylist=${stylist.id}`}
-              className="py-2 px-3 text-center bg-charcoal text-ivory hover:bg-charcoal-light hover:text-gold text-xs uppercase tracking-wider font-semibold transition-colors flex items-center justify-center gap-1.5"
-            >
-              <Calendar className="w-3 h-3 text-gold" />
-              <span>Book</span>
-            </Link>
           </div>
         </div>
       </div>
 
-      {/* Stylist Profile Modal */}
+      {/* Stylist Profile Modal: Profile Only, No Booking */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm">
           <div className="bg-[#FAF7F2] border border-sand max-w-lg w-full overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
             <button
               onClick={() => setModalOpen(false)}
-              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-ivory/80 text-charcoal hover:bg-charcoal hover:text-ivory flex items-center justify-center transition-colors"
+              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-ivory/80 text-charcoal hover:bg-charcoal hover:text-ivory flex items-center justify-center transition-colors shadow-xs"
               aria-label="Close modal"
             >
               <X className="w-4 h-4" />
@@ -112,7 +104,7 @@ export function StylistCard({ stylist }: StylistCardProps) {
                     <Star className="w-3.5 h-3.5 fill-gold" />
                     <span>{stylist.rating} Rating ({stylist.reviewCount} reviews)</span>
                   </div>
-                  <h3 className="font-serif text-2xl text-charcoal">{stylist.name}</h3>
+                  <h3 className="font-serif text-2xl text-charcoal font-medium">{stylist.name}</h3>
                   <p className="text-xs uppercase tracking-wider text-taupe font-medium">
                     {stylist.role}
                   </p>
@@ -127,14 +119,15 @@ export function StylistCard({ stylist }: StylistCardProps) {
                     <div>{stylist.availableDays.join(", ")}</div>
                   </div>
 
-                  <Link
-                    href={`/booking?stylist=${stylist.id}`}
-                    onClick={() => setModalOpen(false)}
-                    className="w-full py-2.5 bg-charcoal text-ivory hover:bg-charcoal-light hover:text-gold text-xs uppercase tracking-widest font-semibold transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Calendar className="w-3.5 h-3.5 text-gold" />
-                    <span>Book with {stylist.name.split(" ")[0]}</span>
-                  </Link>
+                  {stylist.instagram && (
+                    <div className="text-xs text-taupe pt-1">
+                      <span className="font-medium text-charcoal">{stylist.instagram}</span>
+                    </div>
+                  )}
+
+                  <div className="text-[11px] text-taupe italic">
+                    Specialist at ÉLANE Haute Beauté &amp; Grooming Atelier (Sliema, Malta)
+                  </div>
                 </div>
               </div>
             </div>

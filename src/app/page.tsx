@@ -25,6 +25,7 @@ import { StylistCard } from "@/components/shared/StylistCard";
 import { ReviewCard } from "@/components/shared/ReviewCard";
 import { BeforeAfterSlider } from "@/components/ui/BeforeAfterSlider";
 import { QuickDiscoveryCarousel } from "@/components/home/QuickDiscoveryCarousel";
+import { TeamShowcaseCarousel } from "@/components/team/TeamShowcaseCarousel";
 
 export default function HomePage() {
   const [activeReviewFilter, setActiveReviewFilter] = useState("all");
@@ -340,31 +341,30 @@ export default function HomePage() {
         <BeforeAfterSlider />
       </section>
 
-      {/* SECTION 6: MEET THE TEAM */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12 border-b border-sand/60 pb-6">
-          <div>
-            <span className="text-xs uppercase tracking-[0.2em] text-gold font-bold block mb-1">
-              Masters of the Craft
-            </span>
-            <h2 className="font-serif text-3xl sm:text-5xl text-charcoal font-light">
-              Meet The Team
-            </h2>
+      {/* SECTION 6: MEET THE TEAM (Animated Left-to-Right Continuous Loop, Profiles Only) */}
+      <section className="w-full overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4 border-b border-sand/60 pb-6">
+            <div>
+              <span className="text-xs uppercase tracking-[0.2em] text-gold font-bold block mb-1">
+                Masters of the Craft
+              </span>
+              <h2 className="font-serif text-3xl sm:text-5xl text-charcoal font-light">
+                Meet The Team
+              </h2>
+            </div>
+            <Link
+              href="/about#team"
+              className="text-xs uppercase tracking-widest font-semibold text-charcoal hover:text-gold flex items-center gap-1.5 transition-colors"
+            >
+              <span>Learn More About Our Stylists</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
-          <Link
-            href="/about#team"
-            className="text-xs uppercase tracking-widest font-semibold text-charcoal hover:text-gold flex items-center gap-1.5 transition-colors"
-          >
-            <span>Learn More About Our Stylists</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {STYLISTS.slice(0, 3).map((stylist) => (
-            <StylistCard key={stylist.id} stylist={stylist} />
-          ))}
-        </div>
+        {/* Animated Left-to-Right Team Showcase */}
+        <TeamShowcaseCarousel stylists={STYLISTS} />
       </section>
 
       {/* SECTION 7: EVENTS & WEDDINGS */}
