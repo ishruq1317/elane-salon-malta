@@ -18,12 +18,14 @@ import {
   ChevronRight,
   ShieldCheck,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function Navbar() {
   const pathname = usePathname();
   const { user, cart, setIsCartOpen, setIsSearchOpen } = useApp();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -54,43 +56,87 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`sticky top-0 z-40 transition-all duration-300 ${
+        className={`sticky top-0 z-40 transition-all duration-300 relative ${
           isScrolled
             ? "bg-[#FAF7F2]/95 backdrop-blur-md shadow-subtle border-b border-sand/50 py-3"
             : "bg-[#FAF7F2]/80 backdrop-blur-sm py-4 border-b border-sand/30"
         }`}
       >
+        {/* Animated Page Transition Route Line across page switches */}
+        <motion.div
+          key={pathname}
+          initial={{ scaleX: 0, opacity: 1, originX: 0 }}
+          animate={{ scaleX: 1, opacity: [1, 1, 0] }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-gold via-sand-light to-gold shadow-xs z-50 pointer-events-none"
+        />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-4">
             {/* Left / Brand Logo */}
             <div className="flex items-center gap-6">
-              <Link href="/" className="group flex flex-col items-start focus:outline-none">
-                <span className="font-serif text-2xl sm:text-3xl tracking-[0.2em] font-normal text-charcoal group-hover:text-gold transition-colors uppercase">
+              <Link href="/" className="group flex flex-col items-start focus:outline-none transition-transform duration-300 hover:scale-[1.02]">
+                <span className="font-serif text-2xl sm:text-3xl tracking-[0.2em] font-normal text-charcoal group-hover:text-gold transition-colors duration-300 uppercase">
                   ÉLANE
                 </span>
-                <span className="text-[9px] uppercase tracking-[0.25em] text-taupe font-medium -mt-1">
+                <span className="text-[9px] uppercase tracking-[0.25em] text-taupe font-medium -mt-1 group-hover:text-gold/80 transition-colors">
                   Atelier Malta
                 </span>
               </Link>
             </div>
 
             {/* Center Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2">
+            <nav
+              className="hidden lg:flex items-center space-x-1 xl:space-x-1.5"
+              onMouseLeave={() => setHoveredLink(null)}
+            >
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;
+                const isHovered = hoveredLink === link.href;
+
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`px-3 py-1.5 text-xs xl:text-[13px] tracking-wider uppercase font-medium transition-colors relative ${
+                    onMouseEnter={() => setHoveredLink(link.href)}
+                    className={`group relative px-3 py-1.5 text-xs xl:text-[13px] tracking-wider uppercase font-medium transition-colors select-none flex items-center justify-center cursor-pointer ${
                       isActive
                         ? "text-charcoal font-semibold"
                         : "text-charcoal/75 hover:text-charcoal"
                     }`}
                   >
-                    {link.label}
+                    {/* Animated Sliding Active Pill (Framer Motion layoutId moves smoothly across page changes) */}
                     {isActive && (
-                      <span className="absolute bottom-0 left-3 right-3 h-[1.5px] bg-gold rounded-full" />
+                      <motion.div
+                        layoutId="active-navbar-pill"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        className="absolute inset-0 bg-sand/35 rounded-xs -z-10 shadow-xs border-b-2 border-gold"
+                      />
+                    )}
+
+                    {/* Cursor Pointer Hover Backdrop (Fluid spring highlight following the cursor) */}
+                    {isHovered && !isActive && (
+                      <motion.div
+                        layoutId="hover-navbar-pill"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                        className="absolute inset-0 bg-sand/20 rounded-xs -z-10"
+                      />
+                    )}
+
+                    {/* Title Text with Spring Micro-Lift & Color Shift on Pointer Hover */}
+                    <span className="relative z-10 transition-all duration-200 ease-out group-hover:-translate-y-0.5 group-hover:text-gold flex items-center gap-1">
+                      <span>{link.label}</span>
+
+                      {/* Delicate Sparkle Dot on hover */}
+                      <span className="w-1.5 h-1.5 rounded-full bg-gold opacity-0 group-hover:opacity-100 transition-all duration-300 scale-0 group-hover:scale-100 shadow-xs" />
+                    </span>
+
+                    {/* Expanding Gold Underline on Pointer Hover (Only for inactive items) */}
+                    {!isActive && (
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.5px] bg-gradient-to-r from-transparent via-gold to-transparent w-0 group-hover:w-4/5 transition-all duration-300 ease-out rounded-full pointer-events-none" />
                     )}
                   </Link>
                 );
